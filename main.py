@@ -8,6 +8,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import paho.mqtt.client as mqtt
 from pymongo import MongoClient
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -163,6 +164,16 @@ async def get_device_history(device_id: str):
         return {"history": history}
     except Exception as e:
         return {"error": str(e)}
+
+class LoginRequest(BaseModel):
+    userid: str
+    password: str
+
+@app.post("/api/login")
+async def login(request: LoginRequest):
+    if request.userid == "admin@zenode" and request.password == "zenode@fyp":
+        return {"success": True, "token": "zenode-session-token-abc123xyz"}
+    return {"success": False, "error": "Invalid User ID or Password"}
 
 if __name__ == "__main__":
     import uvicorn
