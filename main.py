@@ -165,6 +165,22 @@ async def get_device_history(device_id: str):
     except Exception as e:
         return {"error": str(e)}
 
+@app.get("/api/devices/{device_id}/range")
+async def get_device_history_range(device_id: str, start: str, end: str):
+    try:
+        query = {
+            "topic": device_id,
+            "received_at": {
+                "$gte": start,
+                "$lte": end
+            }
+        }
+        cursor = collection.find(query).sort("received_at", 1)
+        history = [serialize_doc(doc) for doc in cursor]
+        return {"history": history}
+    except Exception as e:
+        return {"error": str(e)}
+
 class LoginRequest(BaseModel):
     userid: str
     password: str
